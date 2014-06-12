@@ -25,7 +25,7 @@ class Responsive_IO {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '1.1.2';
+	const VERSION = '1.1.3';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -71,7 +71,7 @@ class Responsive_IO {
 		 * Refer To http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
 		 */
 		add_filter( 'the_content', array( $this, 'update_images' ), 20 );
-		add_filter( 'post_thumbnail_html', array( $this, 'update_images' ));
+		add_filter( 'post_thumbnail_html', array( $this, 'update_images' ), 20 );
 
 		// WIP cropping feature filters
 		// add_filter( 'attachment_fields_to_edit', array( $this, 'image_cropping_field' ) );
@@ -351,8 +351,10 @@ class Responsive_IO {
 	 */
 	public function update_images($content) {
 
+		require_once( plugin_dir_path( __FILE__ ) . 'includes/SmartDOMDocument.class.php' );
+
 		// Create a DOMDocument instance
-		$dom = new DOMDocument;
+		$dom = new SmartDOMDocument();
 
 		$dom->formatOutput = true;
 		$dom->preserveWhiteSpace = false;
@@ -400,8 +402,7 @@ class Responsive_IO {
 		}
 
 		// Return our modified content
-		$html = $dom->saveHTML();
-		$html = preg_replace('~<(?:!DOCTYPE|/?(?:html|head|body))[^>]*>\s*~i', '', $html);
+		$html = $dom->saveHTMLExact();
 
 		return $html;
 
